@@ -30,7 +30,7 @@ def register_user():
         first_name = form.first_name.data
         last_name = form.last_name.data
 
-        new_user = User(username=username,password=password,email=email,first_name=first_name,last_name=last_name)
+        new_user = User.register_user(username=username,password=password,email=email,first_name=first_name,last_name=last_name)
         db.session.add(new_user)
         db.session.commit()
         flash(f"User is created")
