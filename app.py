@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask,redirect,request,render_template
 from models import connect_db,db,User
 
 app= Flask(__name__)
@@ -15,4 +15,8 @@ app.app_context().push()
 
 @app.route("/")
 def show_root():
-    return "page is preparing"
+    return redirect("/register")
+
+@app.route("/register")
+def register_user():
+    return render_template("register_form.html")
