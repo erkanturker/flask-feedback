@@ -68,3 +68,9 @@ def show_secret():
     else: 
         flash("Only Authorized Users see the content", "danger")
         return redirect("/login")
+    
+@app.route("/logout")
+def logout_user():
+    session.pop("username")
+    flash("Goodbye!", "info")
+    return redirect('/')
