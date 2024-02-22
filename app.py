@@ -1,6 +1,6 @@
-from flask import Flask,redirect,request,render_template,flash
+from flask import Flask,redirect,request,render_template,flash,session
 from models import connect_db,db,User
-from forms import RegisterUserForm
+from forms import RegisterUserForm,UserLoginForm
 
 app= Flask(__name__)
 
@@ -21,6 +21,8 @@ def show_root():
 
 @app.route("/register", methods=['GET','POST'])
 def register_user():
+    """Register User"""
+
     form =RegisterUserForm()
 
     if form.validate_on_submit():
@@ -33,11 +35,36 @@ def register_user():
         new_user = User.register_user(username=username,password=password,email=email,first_name=first_name,last_name=last_name)
         db.session.add(new_user)
         db.session.commit()
-        flash(f"User is created")
+        flash(f"User is created","success")
         return redirect("/secret")
     else:
         return render_template("register_form.html", form = form)
+
+@app.route("/login",methods=['GET','POST'])
+def login_user():
+    """Produce login form or handle login."""
+
+    form = UserLoginForm()
+    if form.validate_on_submit():
+        username = form.username.data
+        password = form.password.data
+
+        user = User.authenticate_user(username=username,password=password)
+        if user:
+            session['username']= user.username
+            flash("You logged in", "success")
+            return redirect("/secret")
+        else:
+            form.username.errors=['Bad Username/Password']
+            flash("Login Failed", "danger")
+
+    return render_template("login.html",form=form)
     
 @app.route("/secret")
 def show_secret():
-    return render_template("secret.html")
+    username = session.get("username",None)
+    if username:
+        return render_template("secret.html")
+    else: 
+        flash("Only Authorized Users see the content", "danger")
+        return redirect("/login")
