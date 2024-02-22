@@ -5,4 +5,21 @@
 <p>{{user.last_name}}</p>
 <p>{{user.email}}</p>
 
-{%endblock%}
+{%for feed in user.feedbacks%}
+
+<div class="card mt-3" style="width: 50rem">
+  <div class="card-body">
+    <h4 class="card-title">{{feed.title}}</h4>
+    <p class="card-text">{{feed.content}}</p>
+    <div class="d-flex">
+      <form method="POST" style="display: inline">
+        <button class="btn btn-danger btn-sm">Delete</button>
+      </form>
+      <form method="POST" style="display: inline">
+        <button class="btn btn-primary btn-sm ml-2">Edit</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+{%endfor%} {%endblock%}

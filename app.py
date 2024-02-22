@@ -1,6 +1,6 @@
 from flask import Flask,redirect,request,render_template,flash,session
-from models import connect_db,db,User
-from forms import RegisterUserForm,UserLoginForm
+from models import connect_db,db,User,Feedback
+from forms import RegisterUserForm,UserLoginForm,FeedbackForm
 
 app= Flask(__name__)
 
@@ -75,3 +75,19 @@ def logout_user():
     session.pop("username")
     flash("Goodbye!", "info")
     return redirect('/')
+
+@app.route("/users/<string:username>/feedback/add",methods=['GET','POST'])
+def add_feedback(username):
+    form = FeedbackForm()
+
+    session_username = session.get("username",None)
+    if session_username==username:
+        if form.validate_on_submit():
+            title = form.title.data
+            content = form.content.data
+            feedback = Feedback(title=title,content=content,username=username)
+            db.session.add(feedback)
+            db.session.commit()
+            redirect(f"/users/{username}")
+        else:
+         return render_template("add_feedback.html",form=form)
