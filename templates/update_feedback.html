@@ -1,5 +1,5 @@
 {% extends 'base.html'%}{%block title %} Secret {%endblock%}{%block content%}
-<h3 class="display-5 mt-3">Update Feedback</h3>
+<h3 class="display-5 mt-3">Add Feedback</h3>
 
 <form method="POST">
   {{form.hidden_tag()}} {% for field in form if field.widget.input_type!=

@@ -20,7 +20,11 @@
       >
         <button class="btn btn-danger btn-sm">Delete</button>
       </form>
-      <form method="POST" style="display: inline">
+      <form
+        action="/feedback/{{feed.id}}/update"
+        method="GET"
+        style="display: inline"
+      >
         <button class="btn btn-primary btn-sm ml-2">Edit</button>
       </form>
     </div>
