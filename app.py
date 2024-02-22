@@ -36,7 +36,7 @@ def register_user():
         db.session.add(new_user)
         db.session.commit()
         flash(f"User is created","success")
-        return redirect("/secret")
+        return redirect("/user_details")
     else:
         return render_template("register_form.html", form = form)
 
@@ -53,18 +53,19 @@ def login_user():
         if user:
             session['username']= user.username
             flash("You logged in", "success")
-            return redirect("/secret")
+            return redirect(f"/users/{user.username}")
         else:
             form.username.errors=['Bad Username/Password']
             flash("Login Failed", "danger")
 
     return render_template("login.html",form=form)
     
-@app.route("/secret")
-def show_secret():
-    username = session.get("username",None)
-    if username:
-        return render_template("secret.html")
+@app.route("/users/<string:username>")
+def show_secret(username):
+    session_username = session.get("username",None)
+    if session_username==username:
+        user = User.query.filter_by(username=username).first()
+        return render_template("user_details.html",user=user)
     else: 
         flash("Only Authorized Users see the content", "danger")
         return redirect("/login")
