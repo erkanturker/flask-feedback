@@ -11,14 +11,20 @@
   <div class="card-body">
     <h4 class="card-title">{{feed.title}}</h4>
     <p class="card-text">{{feed.content}}</p>
+    {%if session['username']==user.username%}
     <div class="d-flex">
-      <form method="POST" style="display: inline">
+      <form
+        action="/feedback/{{feed.id}}/delete"
+        method="POST"
+        style="display: inline"
+      >
         <button class="btn btn-danger btn-sm">Delete</button>
       </form>
       <form method="POST" style="display: inline">
         <button class="btn btn-primary btn-sm ml-2">Edit</button>
       </form>
     </div>
+    {%endif%}
   </div>
 </div>
 

@@ -65,6 +65,7 @@ def show_secret(username):
     session_username = session.get("username",None)
     if session_username==username:
         user = User.query.filter_by(username=username).first()
+
         return render_template("user_details.html",user=user)
     else: 
         flash("Only Authorized Users see the content", "danger")
@@ -91,3 +92,11 @@ def add_feedback(username):
             redirect(f"/users/{username}")
         else:
          return render_template("add_feedback.html",form=form)
+        
+@app.route("/feedback/<int:feedback_id>/delete",methods=['POST'])
+def delete_feedback(feedback_id):
+    feedback = Feedback.query.get(feedback_id)
+    username = feedback.user.username
+    db.session.delete(feedback)
+    db.session.commit()
+    return redirect(f"/users/{username}")
