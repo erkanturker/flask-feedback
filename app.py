@@ -1,6 +1,7 @@
-from flask import Flask,redirect,request,render_template,flash,session
+from flask import Flask,redirect,request,render_template,flash,session,abort
 from models import connect_db,db,User,Feedback
 from forms import RegisterUserForm,UserLoginForm,FeedbackForm
+from werkzeug.exceptions import Unauthorized
 
 app= Flask(__name__)
 
@@ -17,11 +18,19 @@ with app.app_context():
 
 @app.route("/")
 def show_root():
-    return redirect("/register")
+    if "username" in session:
+        redirect(f"users/{session['username']}")
+    else:    
+     return redirect("/register")
 
 @app.route("/register", methods=['GET','POST'])
 def register_user():
     """Register User"""
+
+    session_username = session.get("username",None)
+
+    if session_username:
+        return redirect(f"/users/{session_username}")
 
     form =RegisterUserForm()
 
@@ -36,13 +45,19 @@ def register_user():
         db.session.add(new_user)
         db.session.commit()
         flash(f"User is created","success")
-        return redirect("/user_details")
+        session['username']= new_user.username
+        return redirect(f"/users/{new_user.username}")
     else:
         return render_template("register_form.html", form = form)
 
 @app.route("/login",methods=['GET','POST'])
 def login_user():
     """Produce login form or handle login."""
+    session_username = session.get("username",None)
+
+    if session_username:
+        return redirect(f"/users/{session_username}")
+
 
     form = UserLoginForm()
     if form.validate_on_submit():
@@ -65,17 +80,18 @@ def show_secret(username):
     session_username = session.get("username",None)
     if session_username==username:
         user = User.query.filter_by(username=username).first()
-
-        return render_template("user_details.html",user=user)
+        feedbacks = Feedback.query.all()
+        return render_template("user_details.html",user=user,feedbacks=feedbacks)
     else: 
         flash("Only Authorized Users see the content", "danger")
         return redirect("/login")
     
 @app.route("/logout")
 def logout_user():
-    session.pop("username")
-    flash("Goodbye!", "info")
-    return redirect('/')
+    if "username" in session:
+        session.pop("username")
+        flash("Goodbye!", "info")
+    return redirect('/login')
 
 @app.route("/users/<string:username>/feedback/add",methods=['GET','POST'])
 def add_feedback(username):
@@ -89,7 +105,8 @@ def add_feedback(username):
             feedback = Feedback(title=title,content=content,username=username)
             db.session.add(feedback)
             db.session.commit()
-            redirect(f"/users/{username}")
+            flash('Post added successfully', 'success')
+            return redirect(f"/users/{username}")
         else:
          return render_template("add_feedback.html",form=form)
         
@@ -117,3 +134,8 @@ def delete_feedback(feedback_id):
     db.session.commit()
     flash('Post updated successfully', 'danger')
     return redirect(f"/users/{username}")
+
+@app.errorhandler(404)
+def page_not_found(e):
+    """Show 404 NOT FOUND page."""
+    return render_template('404.html'), 404

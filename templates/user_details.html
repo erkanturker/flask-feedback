@@ -4,14 +4,19 @@
 <p>{{user.first_name}}</p>
 <p>{{user.last_name}}</p>
 <p>{{user.email}}</p>
+<p>
+  <a href="/users/{{user.username}}/feedback/add" class="btn btn-primary"
+    >Add Feedback</a
+  >
+</p>
 
-{%for feed in user.feedbacks%}
+{%for feed in feedbacks%}
 
 <div class="card mt-3" style="width: 50rem">
   <div class="card-body">
     <h4 class="card-title">{{feed.title}}</h4>
     <p class="card-text">{{feed.content}}</p>
-    {%if session['username']==user.username%}
+    {%if session['username']==feed.username%}
     <div class="d-flex">
       <form
         action="/feedback/{{feed.id}}/delete"
